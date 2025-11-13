@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Полезные ресурсы ГБУ РО «ЦГБ им. Н.А. Семашко»</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="header">
+        <img src="http://gb-1.ru/wp-content/uploads/2023/04/Logo_2_293_122-2-1.jpg" alt="Логотип ГБУ РО «ЦГБ им. Н.А. Семашко»" class="hospital-logo">
+        <div class="header-title">
+            <h1>Полезные ресурсы ГБУ РО «ЦГБ им. Н.А. Семашко» в г. Ростове-на-Дону</h1>
+        </div>
+    </div>
+
+    <table>
+        <thead>
+            <tr>
+                <th width="50">№</th>
+                <th width="60">Лого</th>
+                <th>Ссылка</th>
+                <th>Описание</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for group in groups %}
+            <tr class="group-header">
+                <td colspan="4">{{ group.name }}</td>
+            </tr>
+            {% for resource in group.resources %}
+            <tr>
+                <td class="number">{{ resource.number }}</td>
+                <td>
+                    {% if resource.logo %}
+                    <img src="{{ resource.logo }}" alt="Лого {{ resource.url }}" class="logo" onerror="this.style.display='none'">
+                    {% endif %}
+                </td>
+                <td><a href="{{ resource.url }}" target="_blank">{{ resource.url }}</a></td>
+                <td class="description">{{ resource.description }}</td>
+            </tr>
+            {% endfor %}
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <script>
+        // Альтернативный способ загрузки логотипов для сайтов, где favicon.ico недоступен
+        document.addEventListener('DOMContentLoaded', function() {
+            const logos = document.querySelectorAll('.logo');
+            logos.forEach(logo => {
+                logo.addEventListener('error', function() {
+                    // Пытаемся загрузить логотип через Google Favicon service
+                    const domain = this.src.replace('https://', '').split('/')[0];
+                    this.src = `https://www.google.com/s2/favicons?domain=${domain}&sz=32`;
+                });
+            });
+
+            // Обработка ошибки загрузки логотипа больницы
+            const hospitalLogo = document.querySelector('.hospital-logo');
+            hospitalLogo.addEventListener('error', function() {
+                console.log('Логотип больницы не загрузился');
+            });
+        });
+    </script>
+</body>
+</html>

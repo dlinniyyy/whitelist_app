@@ -1,0 +1,179 @@
+{
+  "groups": [
+    {
+      "name": "Справочники",
+      "resources": [
+        {
+          "number": 1,
+          "logo": "http://10.0.0.43/favicon.ico",
+          "url": "http://10.0.0.43/login",
+          "description": "Медицинская информационная система"
+        },
+        {
+          "number": 2,
+          "logo": "https://www.vidal.ru/favicon.ico",
+          "url": "https://www.vidal.ru",
+          "description": "Справочник лекарственных препаратов Vidal"
+        },
+        {
+          "number": 3,
+          "logo": "http://web.ref003.ru/images/favicon.ico",
+          "url": "http://web.ref003.ru/",
+          "description": "Справочник аптек - ГУП РО Фармацевтический центр"
+        },
+        {
+          "number": 4,
+          "logo": "http://10.0.0.43/favicon.ico",
+          "url": "http://10.0.0.43/login",
+          "description": "2"
+        },
+        {
+          "number": 5,
+          "logo": "https://www.rlsnet.ru/favicon.ico",
+          "url": "https://www.rlsnet.ru",
+          "description": "Регистр лекарственных средств России - информация о лекарственных препаратах"
+        }
+      ]
+    },
+    {
+      "name": "Калькуляторы",
+      "resources": [
+        {
+          "number": 6,
+          "logo": "https://www.rlsnet.ru/favicon.ico",
+          "url": "https://www.rlsnet.ru/med-calculators",
+          "description": "Медицинские калькуляторы на RLSnet - расчет доз, индексов и других медицинских показателей"
+        }
+      ]
+    },
+    {
+      "name": "Другие информационные системы",
+      "resources": [
+        {
+          "number": 7,
+          "logo": "https://rostov-tfoms.ru/favicon.ico",
+          "url": "https://rostov-tfoms.ru",
+          "description": "Территориальный фонд обязательного медицинского страхования Ростовской области"
+        },
+        {
+          "number": 8,
+          "logo": "https://edu.rosminzdrav.ru/favicon.ico",
+          "url": "https://edu.rosminzdrav.ru",
+          "description": "Образовательный портал Министерства здравоохранения РФ"
+        },
+        {
+          "number": 9,
+          "logo": "https://tmk.minzdrav.gov.ru/favicon.ico",
+          "url": "https://tmk.minzdrav.gov.ru",
+          "description": "Телемедицинская консультация Министерства здравоохранения РФ"
+        },
+        {
+          "number": 10,
+          "logo": "https://vimis.egisz.rosminzdrav.ru/favicon.ico",
+          "url": "https://vimis.egisz.rosminzdrav.ru",
+          "description": "Ведомственная интегрированная медицинская информационная система ЕГИСЗ"
+        },
+        {
+          "number": 11,
+          "logo": "https://orph.egisz.rosminzdrav.ru/favicon.ico",
+          "url": "https://orph.egisz.rosminzdrav.ru",
+          "description": "Федеральный регистр лиц, страдающих орфанными заболеваниями"
+        },
+        {
+          "number": 12,
+          "logo": "https://cr.minzdrav.gov.ru/favicon.ico",
+          "url": "https://cr.minzdrav.gov.ru",
+          "description": "Рубрикатор Клинических рекомендаций"
+        },
+        {
+          "number": 13,
+          "logo": "https://portalmr.egisz.rosminzdrav.ru/favicon.ico",
+          "url": "https://portalmr.egisz.rosminzdrav.ru",
+          "description": "ФРМР Федеральный регистр медицинских работников"
+        },
+        {
+          "number": 14,
+          "logo": "https://lkmr.egisz.rosminzdrav.ru/favicon.ico",
+          "url": "https://lkmr.egisz.rosminzdrav.ru",
+          "description": "ЛК ФРМР - Личный кабинет медицинского работника"
+        },
+        {
+          "number": 15,
+          "logo": "https://diaregistry.ru/favicon.ico",
+          "url": "https://diaregistry.ru",
+          "description": "Федеральный регистр сахарного диабета"
+        },
+        {
+          "number": 16,
+          "logo": "https://www.gosuslugi.ru/favicon.ico",
+          "url": "https://www.gosuslugi.ru",
+          "description": "Портал государственных услуг Российской Федерации"
+        },
+        {
+          "number": 17,
+          "logo": "https://grls.rosminzdrav.ru/favicon.ico",
+          "url": "https://grls.rosminzdrav.ru",
+          "description": "Государственный реестр лекарственных средств"
+        },
+        {
+          "number": 18,
+          "logo": "https://roszdravnadzor.gov.ru/favicon.ico",
+          "url": "https://roszdravnadzor.gov.ru/",
+          "description": "Федеральная служба по надзору в сфере здравоохранения"
+        }
+      ]
+    },
+    {
+      "name": "Честный знак",
+      "resources": [
+        {
+          "number": 19,
+          "logo": "https://mdlp.crpt.ru/favicon.ico",
+          "url": "https://mdlp.crpt.ru",
+          "description": "Мониторинг движения лекарственных препаратов"
+        },
+        {
+          "number": 20,
+          "logo": "https://честныйзнак.рф/favicon.ico",
+          "url": "https://честныйзнак.рф",
+          "description": "Официальный портал системы маркировки \"Честный знак\""
+        },
+        {
+          "number": 21,
+          "logo": "https://support.crpt.ru/ws-crpt-login/images/favicon.png",
+          "url": "https://support.crpt.ru",
+          "description": "Техническая поддержка системы \"Честный знак\""
+        },
+        {
+          "number": 22,
+          "logo": "https://markirovka.crpt.ru/favicon.ico",
+          "url": "https://markirovka.crpt.ru",
+          "description": "Личный кабинет системы \"Честный знак\""
+        }
+      ]
+    },
+    {
+      "name": "Другие медицинские организации",
+      "resources": [
+        {
+          "number": 23,
+          "logo": "https://www.center-zdorovie.ru/sites/all/themes/health/images/2022_head_logo_kdc_1.png",
+          "url": "https://center-zdorovie.ru",
+          "description": "ГБУ РО «КДЦ «Здоровье» в г. Ростове-на-Дону"
+        },
+        {
+          "number": 24,
+          "logo": "https://rokdc.ru/favicon.ico",
+          "url": "https://rokdc.ru",
+          "description": "Областной консультативно-диагностический центр"
+        },
+        {
+          "number": 25,
+          "logo": "https://legeartis-don.ru/favicon.ico",
+          "url": "https://legeartis-don.ru",
+          "description": "Медицинский центр \"Леге Артис\" в Ростове-на-Дону"
+        }
+      ]
+    }
+  ]
+}

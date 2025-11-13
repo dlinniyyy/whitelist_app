@@ -1,0 +1,535 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Администрирование - Полезные ресурсы</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <style>
+        .admin-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .admin-section {
+            background: white;
+            padding: 20px;
+            margin-bottom: 20px;
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+            color: #2c3e50;
+        }
+        input, textarea, select {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+        button {
+            background: #3498db;
+            color: white;
+            padding: 8px 15px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-right: 5px;
+            margin-bottom: 5px;
+            font-size: 14px;
+        }
+        button:hover {
+            background: #2980b9;
+        }
+        button.edit {
+            background: #f39c12;
+        }
+        button.edit:hover {
+            background: #e67e22;
+        }
+        button.delete {
+            background: #e74c3c;
+        }
+        button.delete:hover {
+            background: #c0392b;
+        }
+        button.move {
+            background: #9b59b6;
+        }
+        button.move:hover {
+            background: #8e44ad;
+        }
+        .message {
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 4px;
+        }
+        .success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        .groups-list {
+            margin-top: 20px;
+        }
+        .group-item {
+            background: #f8f9fa;
+            padding: 20px;
+            margin-bottom: 20px;
+            border-radius: 4px;
+            border-left: 4px solid #3498db;
+        }
+        .resource-item {
+            background: white;
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 3px;
+            border: 1px solid #e9ecef;
+            display: flex;
+            justify-content: between;
+            align-items: center;
+        }
+        .resource-info {
+            flex: 1;
+        }
+        .resource-actions {
+            display: flex;
+            gap: 5px;
+        }
+        .back-link {
+            display: inline-block;
+            margin-bottom: 20px;
+            color: #3498db;
+            text-decoration: none;
+            font-weight: bold;
+        }
+        .back-link:hover {
+            text-decoration: underline;
+        }
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+        }
+        .modal-content {
+            background-color: white;
+            margin: 10% auto;
+            padding: 20px;
+            border-radius: 5px;
+            width: 80%;
+            max-width: 500px;
+        }
+        .close {
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <div class="admin-container">
+        <a href="/" class="back-link">← Назад к ресурсам</a>
+        <h1>Администрирование ресурсов</h1>
+
+        <div id="message-container"></div>
+
+        <!-- Форма добавления группы -->
+        <div class="admin-section">
+            <h2>Добавить новую группу</h2>
+            <form id="add-group-form">
+                <div class="form-group">
+                    <label for="group-name">Название группы:</label>
+                    <input type="text" id="group-name" name="name" required>
+                </div>
+                <button type="submit">Добавить группу</button>
+            </form>
+        </div>
+
+        <!-- Форма добавления ресурса -->
+        <div class="admin-section">
+            <h2>Добавить новый ресурс</h2>
+            <form id="add-resource-form">
+                <div class="form-group">
+                    <label for="resource-group">Группа:</label>
+                    <select id="resource-group" name="group_index" required>
+                        <option value="">Выберите группу</option>
+                        {% for i in range(groups|length) %}
+                        <option value="{{ i }}">{{ groups[i].name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="resource-logo">URL логотипа (необязательно):</label>
+                    <input type="url" id="resource-logo" name="logo" placeholder="https://example.com/favicon.ico">
+                </div>
+                <div class="form-group">
+                    <label for="resource-url">URL ресурса:</label>
+                    <input type="url" id="resource-url" name="url" required placeholder="https://example.com">
+                </div>
+                <div class="form-group">
+                    <label for="resource-description">Описание:</label>
+                    <textarea id="resource-description" name="description" rows="3" required></textarea>
+                </div>
+                <button type="submit">Добавить ресурс</button>
+            </form>
+        </div>
+
+        <!-- Список групп и ресурсов -->
+        <div class="admin-section">
+            <h2>Существующие группы и ресурсы</h2>
+            <div class="groups-list">
+                {% for i in range(groups|length) %}
+                <div class="group-item">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                        <h3>{{ groups[i].name }}</h3>
+                        <div>
+                            <button class="edit" onclick="showEditGroupModal({{ i }}, '{{ groups[i].name }}')">Редактировать группу</button>
+                            {% if not groups[i].resources %}
+                            <button class="delete" onclick="deleteGroup({{ i }})">Удалить группу</button>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    {% for j in range(groups[i].resources|length) %}
+                    <div class="resource-item">
+                        <div class="resource-info">
+                            <strong>{{ groups[i].resources[j].number }}.</strong>
+                            <a href="{{ groups[i].resources[j].url }}" target="_blank">{{ groups[i].resources[j].url }}</a>
+                            <p>{{ groups[i].resources[j].description }}</p>
+                        </div>
+                        <div class="resource-actions">
+                            <button class="move" onclick="moveResource({{ i }}, {{ j }}, 'up')" {% if j == 0 %}disabled{% endif %}>↑</button>
+                            <button class="move" onclick="moveResource({{ i }}, {{ j }}, 'down')" {% if j == groups[i].resources|length - 1 %}disabled{% endif %}>↓</button>
+                            <button class="edit" onclick="showEditResourceModal({{ i }}, {{ j }})">Редактировать</button>
+                            <button class="delete" onclick="deleteResource({{ i }}, {{ j }})">Удалить</button>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Модальное окно редактирования группы -->
+    <div id="editGroupModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeEditGroupModal()">&times;</span>
+            <h2>Редактировать группу</h2>
+            <form id="edit-group-form">
+                <input type="hidden" id="edit-group-index" name="group_index">
+                <div class="form-group">
+                    <label for="edit-group-name">Название группы:</label>
+                    <input type="text" id="edit-group-name" name="name" required>
+                </div>
+                <button type="submit">Сохранить</button>
+                <button type="button" onclick="closeEditGroupModal()">Отмена</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Модальное окно редактирования ресурса -->
+    <div id="editResourceModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeEditResourceModal()">&times;</span>
+            <h2>Редактировать ресурс</h2>
+            <form id="edit-resource-form">
+                <input type="hidden" id="edit-resource-group-index" name="group_index">
+                <input type="hidden" id="edit-resource-index" name="resource_index">
+                <div class="form-group">
+                    <label for="edit-resource-logo">URL логотипа (необязательно):</label>
+                    <input type="url" id="edit-resource-logo" name="logo" placeholder="https://example.com/favicon.ico">
+                </div>
+                <div class="form-group">
+                    <label for="edit-resource-url">URL ресурса:</label>
+                    <input type="url" id="edit-resource-url" name="url" required placeholder="https://example.com">
+                </div>
+                <div class="form-group">
+                    <label for="edit-resource-description">Описание:</label>
+                    <textarea id="edit-resource-description" name="description" rows="3" required></textarea>
+                </div>
+                <button type="submit">Сохранить</button>
+                <button type="button" onclick="closeEditResourceModal()">Отмена</button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        function showMessage(message, type) {
+            const container = document.getElementById('message-container');
+            container.innerHTML = `<div class="message ${type}">${message}</div>`;
+            setTimeout(() => {
+                container.innerHTML = '';
+            }, 5000);
+        }
+
+        // Модальные окна
+        function showEditGroupModal(groupIndex, groupName) {
+            document.getElementById('edit-group-index').value = groupIndex;
+            document.getElementById('edit-group-name').value = groupName;
+            document.getElementById('editGroupModal').style.display = 'block';
+        }
+
+        function closeEditGroupModal() {
+            document.getElementById('editGroupModal').style.display = 'none';
+        }
+
+        function showEditResourceModal(groupIndex, resourceIndex) {
+            const resource = {{ groups|tojson }}[groupIndex].resources[resourceIndex];
+            document.getElementById('edit-resource-group-index').value = groupIndex;
+            document.getElementById('edit-resource-index').value = resourceIndex;
+            document.getElementById('edit-resource-logo').value = resource.logo || '';
+            document.getElementById('edit-resource-url').value = resource.url;
+            document.getElementById('edit-resource-description').value = resource.description;
+            document.getElementById('editResourceModal').style.display = 'block';
+        }
+
+        function closeEditResourceModal() {
+            document.getElementById('editResourceModal').style.display = 'none';
+        }
+
+        // Закрытие модальных окон при клике вне их
+        window.onclick = function(event) {
+            const editGroupModal = document.getElementById('editGroupModal');
+            const editResourceModal = document.getElementById('editResourceModal');
+            if (event.target === editGroupModal) {
+                closeEditGroupModal();
+            }
+            if (event.target === editResourceModal) {
+                closeEditResourceModal();
+            }
+        }
+
+        // Добавление группы
+        document.getElementById('add-group-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const formData = new FormData(e.target);
+
+            try {
+                const response = await fetch('/api/add_group', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        name: formData.get('name')
+                    })
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    showMessage(result.message, 'success');
+                    e.target.reset();
+                    setTimeout(() => location.reload(), 1000);
+                } else {
+                    showMessage(result.message, 'error');
+                }
+            } catch (error) {
+                showMessage('Ошибка при добавлении группы', 'error');
+            }
+        });
+
+        // Редактирование группы
+        document.getElementById('edit-group-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const formData = new FormData(e.target);
+
+            try {
+                const response = await fetch('/api/edit_group', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        group_index: formData.get('group_index'),
+                        name: formData.get('name')
+                    })
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    showMessage(result.message, 'success');
+                    closeEditGroupModal();
+                    setTimeout(() => location.reload(), 1000);
+                } else {
+                    showMessage(result.message, 'error');
+                }
+            } catch (error) {
+                showMessage('Ошибка при редактировании группы', 'error');
+            }
+        });
+
+        // Добавление ресурса
+        document.getElementById('add-resource-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const formData = new FormData(e.target);
+
+            try {
+                const response = await fetch('/api/add_resource', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        group_index: formData.get('group_index'),
+                        logo: formData.get('logo'),
+                        url: formData.get('url'),
+                        description: formData.get('description')
+                    })
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    showMessage(result.message, 'success');
+                    e.target.reset();
+                    setTimeout(() => location.reload(), 1000);
+                } else {
+                    showMessage(result.message, 'error');
+                }
+            } catch (error) {
+                showMessage('Ошибка при добавлении ресурса', 'error');
+            }
+        });
+
+        // Редактирование ресурса
+        document.getElementById('edit-resource-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const formData = new FormData(e.target);
+
+            try {
+                const response = await fetch('/api/edit_resource', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        group_index: formData.get('group_index'),
+                        resource_index: formData.get('resource_index'),
+                        logo: formData.get('logo'),
+                        url: formData.get('url'),
+                        description: formData.get('description')
+                    })
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    showMessage(result.message, 'success');
+                    closeEditResourceModal();
+                    setTimeout(() => location.reload(), 1000);
+                } else {
+                    showMessage(result.message, 'error');
+                }
+            } catch (error) {
+                showMessage('Ошибка при редактировании ресурса', 'error');
+            }
+        });
+
+        // Перемещение ресурса
+        async function moveResource(groupIndex, resourceIndex, direction) {
+            try {
+                const response = await fetch('/api/move_resource', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        group_index: groupIndex,
+                        resource_index: resourceIndex,
+                        direction: direction
+                    })
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    showMessage(result.message, 'success');
+                    setTimeout(() => location.reload(), 1000);
+                } else {
+                    showMessage(result.message, 'error');
+                }
+            } catch (error) {
+                showMessage('Ошибка при перемещении ресурса', 'error');
+            }
+        }
+
+        // Удаление ресурса
+        async function deleteResource(groupIndex, resourceIndex) {
+            if (!confirm('Вы уверены, что хотите удалить этот ресурс?')) return;
+
+            try {
+                const response = await fetch('/api/delete_resource', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        group_index: groupIndex,
+                        resource_index: resourceIndex
+                    })
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    showMessage(result.message, 'success');
+                    setTimeout(() => location.reload(), 1000);
+                } else {
+                    showMessage(result.message, 'error');
+                }
+            } catch (error) {
+                showMessage('Ошибка при удалении ресурса', 'error');
+            }
+        }
+
+        // Удаление группы
+        async function deleteGroup(groupIndex) {
+            if (!confirm('Вы уверены, что хотите удалить эту группу?')) return;
+
+            try {
+                const response = await fetch('/api/delete_group', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        group_index: groupIndex
+                    })
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    showMessage(result.message, 'success');
+                    setTimeout(() => location.reload(), 1000);
+                } else {
+                    showMessage(result.message, 'error');
+                }
+            } catch (error) {
+                showMessage('Ошибка при удалении группы', 'error');
+            }
+        }
+    </script>
+</body>
+</html>

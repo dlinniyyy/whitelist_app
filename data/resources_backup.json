@@ -1,0 +1,32 @@
+{
+  "groups": [
+    {
+      "name": "Справочники",
+      "resources": [
+        {
+          "number": 1,
+          "logo": "https://www.rlsnet.ru/favicon.ico",
+          "url": "https://www.rlsnet.ru",
+          "description": "Регистр лекарственных средств России - информация о лекарственных препаратах"
+        },
+        {
+          "number": 2,
+          "logo": "https://www.vidal.ru/favicon.ico",
+          "url": "https://www.vidal.ru",
+          "description": "Справочник лекарственных препаратов Vidal"
+        }
+      ]
+    },
+    {
+      "name": "Калькуляторы",
+      "resources": [
+        {
+          "number": 3,
+          "logo": "https://www.rlsnet.ru/favicon.ico",
+          "url": "https://www.rlsnet.ru/med-calculators",
+          "description": "Медицинские калькуляторы на RLSnet - расчет доз, индексов и других медицинских показателей"
+        }
+      ]
+    }
+  ]
+}
