@@ -2,6 +2,8 @@ from flask import Flask, render_template, request, jsonify
 import json
 import os
 import logging
+import shutil
+import datetime
 from logging.handlers import RotatingFileHandler
 
 
@@ -29,6 +31,123 @@ app = Flask(__name__)
 
 # Файл для хранения данных
 DATA_FILE = 'data/resources.json'
+BACKUP_DIR = 'backups'
+
+
+def create_backup():
+    """Создание бэкапа файла данных"""
+    try:
+        if not os.path.exists(DATA_FILE):
+            app.logger.warning("Файл данных не существует, бэкап не создан")
+            return False
+
+        # Создаем директорию для бэкапов если ее нет
+        if not os.path.exists(BACKUP_DIR):
+            os.makedirs(BACKUP_DIR)
+            app.logger.info(f"Создана директория для бэкапов: {BACKUP_DIR}")
+
+        # Генерируем имя файла с timestamp
+        timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
+        backup_file = os.path.join(BACKUP_DIR, f"resources_backup_{timestamp}.json")
+
+        # Копируем файл
+        shutil.copy2(DATA_FILE, backup_file)
+
+        # Также создаем симлинк на последний бэкап
+        latest_backup = os.path.join(BACKUP_DIR, "resources_backup_latest.json")
+        if os.path.exists(latest_backup):
+            os.remove(latest_backup)
+        shutil.copy2(DATA_FILE, latest_backup)
+
+        app.logger.info(f"Создан бэкап: {backup_file}")
+
+        # Очищаем старые бэкапы (оставляем последние 10)
+        cleanup_old_backups()
+
+        return True
+
+    except Exception as e:
+        app.logger.error(f"Ошибка создания бэкапа: {e}")
+        return False
+
+
+def cleanup_old_backups(max_backups=10):
+    """Очистка старых бэкапов, оставляет только последние max_backups"""
+    try:
+        if not os.path.exists(BACKUP_DIR):
+            return
+
+        # Получаем все файлы бэкапов
+        backup_files = []
+        for filename in os.listdir(BACKUP_DIR):
+            if filename.startswith("resources_backup_") and filename.endswith(".json") and "latest" not in filename:
+                filepath = os.path.join(BACKUP_DIR, filename)
+                if os.path.isfile(filepath):
+                    backup_files.append((filepath, os.path.getmtime(filepath)))
+
+        # Сортируем по дате изменения (старые первыми)
+        backup_files.sort(key=lambda x: x[1])
+
+        # Удаляем старые бэкапы
+        if len(backup_files) > max_backups:
+            files_to_delete = backup_files[:len(backup_files) - max_backups]
+            for filepath, _ in files_to_delete:
+                os.remove(filepath)
+                app.logger.info(f"Удален старый бэкап: {filepath}")
+
+    except Exception as e:
+        app.logger.error(f"Ошибка очистки старых бэкапов: {e}")
+
+
+def restore_from_backup(backup_file=None):
+    """Восстановление данных из бэкапа"""
+    try:
+        if backup_file is None:
+            backup_file = os.path.join(BACKUP_DIR, "resources_backup_latest.json")
+
+        if not os.path.exists(backup_file):
+            app.logger.error(f"Файл бэкапа не найден: {backup_file}")
+            return False
+
+        shutil.copy2(backup_file, DATA_FILE)
+        app.logger.info(f"Данные восстановлены из бэкапа: {backup_file}")
+        return True
+
+    except Exception as e:
+        app.logger.error(f"Ошибка восстановления из бэкапа: {e}")
+        return False
+
+
+def get_backup_info():
+    """Получение информации о бэкапах"""
+    try:
+        if not os.path.exists(BACKUP_DIR):
+            return {"count": 0, "backups": []}
+
+        backups = []
+        for filename in os.listdir(BACKUP_DIR):
+            if filename.startswith("resources_backup_") and filename.endswith(".json"):
+                filepath = os.path.join(BACKUP_DIR, filename)
+                if os.path.isfile(filepath):
+                    stat = os.stat(filepath)
+                    backups.append({
+                        "filename": filename,
+                        "path": filepath,
+                        "size": stat.st_size,
+                        "modified": datetime.datetime.fromtimestamp(stat.st_mtime).strftime("%Y-%m-%d %H:%M:%S")
+                    })
+
+        # Сортируем по дате изменения (новые первыми)
+        backups.sort(key=lambda x: x["modified"], reverse=True)
+
+        return {
+            "count": len(backups),
+            "backups": backups
+        }
+
+    except Exception as e:
+        app.logger.error(f"Ошибка получения информации о бэкапах: {e}")
+        return {"count": 0, "backups": []}
 
 
 def load_resources():
@@ -38,6 +157,7 @@ def load_resources():
 
     if not os.path.exists(DATA_FILE):
         # Создаем начальные данные если файла нет
+        app.logger.info("Файл данных не найден, создание начальных данных")
         return create_initial_data()
 
     try:
@@ -45,14 +165,21 @@ def load_resources():
             content = f.read().strip()
             if not content:
                 # Если файл пустой, создаем начальные данные
+                app.logger.warning("Файл данных пуст, создание начальных данных")
                 return create_initial_data()
             data = json.loads(content)
             # Пересчитываем номера при загрузке
             return renumber_resources(data)
     except (json.JSONDecodeError, UnicodeDecodeError) as e:
         app.logger.error(f"Ошибка загрузки JSON: {e}")
-        # Если файл поврежден, создаем заново
-        return create_initial_data()
+        # Пытаемся восстановить из бэкапа
+        app.logger.info("Попытка восстановления из бэкапа...")
+        if restore_from_backup():
+            return load_resources()
+        else:
+            # Если файл поврежден, создаем заново
+            app.logger.info("Создание новых начальных данных")
+            return create_initial_data()
 
 
 def create_initial_data():
@@ -232,6 +359,9 @@ def create_initial_data():
 def save_resources(data):
     """Сохранение ресурсов в JSON файл"""
     try:
+        # Создаем бэкап перед сохранением
+        create_backup()
+
         with open(DATA_FILE, 'w', encoding='utf-8') as f:
             json.dump(data, f, ensure_ascii=False, indent=2)
         app.logger.info('Данные успешно сохранены')
@@ -249,6 +379,46 @@ def renumber_resources(data):
             resource['number'] = counter
             counter += 1
     return data
+
+
+# API endpoints для управления бэкапами
+@app.route('/api/backup/create', methods=['POST'])
+def api_create_backup():
+    """Ручное создание бэкапа"""
+    try:
+        if create_backup():
+            return jsonify({"success": True, "message": "Бэкап создан успешно"})
+        else:
+            return jsonify({"success": False, "message": "Ошибка создания бэкапа"})
+    except Exception as e:
+        app.logger.error(f"Ошибка API создания бэкапа: {e}")
+        return jsonify({"success": False, "message": f"Ошибка сервера: {str(e)}"})
+
+
+@app.route('/api/backup/list', methods=['GET'])
+def api_list_backups():
+    """Получение списка бэкапов"""
+    try:
+        backup_info = get_backup_info()
+        return jsonify({"success": True, "data": backup_info})
+    except Exception as e:
+        app.logger.error(f"Ошибка API списка бэкапов: {e}")
+        return jsonify({"success": False, "message": f"Ошибка сервера: {str(e)}"})
+
+
+@app.route('/api/backup/restore', methods=['POST'])
+def api_restore_backup():
+    """Восстановление из бэкапа"""
+    try:
+        backup_file = request.json.get('backup_file')
+
+        if restore_from_backup(backup_file):
+            return jsonify({"success": True, "message": "Данные восстановлены из бэкапа"})
+        else:
+            return jsonify({"success": False, "message": "Ошибка восстановления из бэкапа"})
+    except Exception as e:
+        app.logger.error(f"Ошибка API восстановления бэкапа: {e}")
+        return jsonify({"success": False, "message": f"Ошибка сервера: {str(e)}"})
 
 
 @app.route('/')
@@ -556,6 +726,8 @@ def delete_group():
 
 if __name__ == '__main__':
     setup_logging()
+    # Создаем бэкап при запуске
+    create_backup()
     # Создаем данные при первом запуске
     load_resources()
 
@@ -567,6 +739,7 @@ if __name__ == '__main__':
     print("Основная страница: http://localhost:5000")
     print("Администрирование: http://localhost:5000/admin")
     print("Логи: logs/whitelist.log")
+    print("Бэкапы: backups/")
     print("Для остановки: Ctrl+C")
 
     serve(app, host='0.0.0.0', port=5000, threads=4)
