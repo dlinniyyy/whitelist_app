@@ -531,6 +531,6 @@ if __name__ == '__main__':
     # Создаем данные при первом запуске
     load_resources()
     print("Приложение запущено!")
-    print("Основная страница: http://localhost:5000")
-    print("Администрирование: http://localhost:5000/admin")
-    app.run(host='0.0.0.0', port=5000, debug=True)
+    print("Основная страница: http://localhost:5001")
+    print("Администрирование: http://localhost:5001/admin")
+    app.run(host='0.0.0.0', port=5001, debug=True)

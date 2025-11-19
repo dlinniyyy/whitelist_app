@@ -30,3 +30,7 @@
 2025-11-17 09:21:18,566 INFO: Whitelist application startup [in C:\Users\junior\PycharmProjects\whitelist_app\app_production.py:27]
 2025-11-17 09:21:18,573 INFO: Создан бэкап: backups\resources_backup_20251117_092118.json [in C:\Users\junior\PycharmProjects\whitelist_app\app_production.py:62]
 2025-11-17 09:21:18,709 INFO: Запуск production сервера на порту 5000 [in C:\Users\junior\PycharmProjects\whitelist_app\app_production.py:736]
+2025-11-17 10:52:12,813 INFO: Whitelist application startup [in C:\Users\junior\PycharmProjects\whitelist_app\app_production.py:27]
+2025-11-17 10:52:12,816 INFO: Создан бэкап: backups\resources_backup_20251117_105212.json [in C:\Users\junior\PycharmProjects\whitelist_app\app_production.py:62]
+2025-11-17 10:52:12,818 INFO: Удален старый бэкап: backups\resources_backup_20251113_114033.json [in C:\Users\junior\PycharmProjects\whitelist_app\app_production.py:96]
+2025-11-17 10:52:12,978 INFO: Запуск production сервера на порту 5000 [in C:\Users\junior\PycharmProjects\whitelist_app\app_production.py:736]

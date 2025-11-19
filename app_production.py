@@ -4,8 +4,16 @@ import os
 import logging
 import shutil
 import datetime
+import sys
 from logging.handlers import RotatingFileHandler
 
+
+
+
+# Устанавливаем правильную рабочую директорию
+script_dir = os.path.dirname(os.path.abspath(__file__))
+if os.getcwd() != script_dir:
+    os.chdir(script_dir)
 
 # Настройка логирования
 def setup_logging():
@@ -733,13 +741,13 @@ if __name__ == '__main__':
 
     from waitress import serve
 
-    app.logger.info('Запуск production сервера на порту 5000')
+    app.logger.info('Запуск production сервера на порту 5001')
     print("=== Whitelist Application ===")
     print("Production сервер запущен!")
-    print("Основная страница: http://localhost:5000")
-    print("Администрирование: http://localhost:5000/admin")
+    print("Основная страница: http://localhost:5001")
+    print("Администрирование: http://localhost:5001/admin")
     print("Логи: logs/whitelist.log")
     print("Бэкапы: backups/")
     print("Для остановки: Ctrl+C")
 
-    serve(app, host='0.0.0.0', port=5000, threads=4)
+    serve(app, host='0.0.0.0', port=5001, threads=4)

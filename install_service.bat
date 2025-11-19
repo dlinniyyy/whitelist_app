@@ -23,6 +23,6 @@ python install_service.py start
 
 echo.
 echo Служба установлена и запущена!
-echo Проверьте: http://localhost:5000
+echo Проверьте: http://localhost:5001
 echo.
 pause

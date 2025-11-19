@@ -56,7 +56,7 @@ class WhitelistService(win32serviceutil.ServiceFramework):
     def run_server(self):
         """Запуск сервера в отдельном потоке"""
         try:
-            serve(app, host='0.0.0.0', port=5000, threads=4)
+            serve(app, host='0.0.0.0', port=5001, threads=4)
         except Exception as e:
             servicemanager.LogErrorMsg(f"Ошибка сервера: {e}")
 
@@ -112,7 +112,7 @@ if __name__ == '__main__':
             else:
                 print("Ошибка создания бэкапа")
 
-            serve(app, host='0.0.0.0', port=5000, threads=4)
+            serve(app, host='0.0.0.0', port=5001, threads=4)
         elif sys.argv[1] == 'backup':
             # Ручное создание бэкапа
             from app_production import create_backup
